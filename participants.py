@@ -57,6 +57,10 @@ def convert_excel_to_participants(df_session, variables_file, output_folder, ano
     participants_json_content = {}
     for idx, row in df_variables.iterrows():
         variable_name = row['VariableName']
+
+        if variable_name == 'id':
+            continue
+
         description = row.get('Description', '')
         data_type = row.get('DataType', '').lower()
         levels_str = row.get('Levels', '')
