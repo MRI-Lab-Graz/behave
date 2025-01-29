@@ -7,6 +7,18 @@ import re
 # Initialize colorama
 init(autoreset=True)
 
+def normalize_item_name(item_name):
+    """ 
+    Normalize item names by converting the prefix to uppercase 
+    only if they end with a number.
+    """
+    item_name = str(item_name)  # Ensure it's a string
+    match = re.match(r'([A-Za-z]+)[\s\-_]?(\d+)$', item_name)  # Match only items ending in a number
+    if match:
+        return f"{match.group(1).upper()}{match.group(2)}"  # Convert prefix to uppercase
+    return item_name  # Return unchanged if it doesn't match
+
+
 # Configure logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -22,7 +34,11 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
     """
     
     logging.debug(f"Loading session data from {session_file}")
+    # Load session data and normalize column names
     df_session = pd.read_excel(session_file)
+    df_session.columns = [normalize_item_name(col) for col in df_session.columns]
+    logging.debug(f"Normalized session file columns: {df_session.columns.tolist()}")
+
     logging.debug(f"Session data loaded with columns: {df_session.columns.tolist()}")
 
     # Ensure 'id' and 'ses' columns exist
@@ -33,7 +49,14 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
         raise ValueError("The input session file must contain 'id' and 'ses' columns.")
 
     # Filter task-specific columns
-    task_columns = [col for col in df_session.columns if task_name.lower() in col.lower()]
+    # Normalize column names
+    df_session.columns = [normalize_item_name(col) for col in df_session.columns]
+
+    # Extract task-relevant columns
+    task_columns = [col for col in df_session.columns if task_name in col]
+    logging.debug(f"Normalized task columns found: {task_columns}")
+
+
     logging.debug(f"Task columns found: {task_columns}")
 
     # Load task definition
@@ -42,7 +65,8 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
     if task_item_column is None:
         raise ValueError("The task definition file must contain a column named 'itemname' (case-insensitive).")
     
-    task_items = df_task[task_item_column].tolist()
+    task_items = [normalize_item_name(item) for item in df_task[task_item_column].tolist()]
+
     logging.debug(f"Task items loaded: {task_items}")
 
     missing_items = [item for item in task_items if item not in task_columns]
@@ -68,10 +92,11 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
                 subject_id = f"sub-{subject_id}"
 
             # Create session folder
-            subject_folder = os.path.join(output_folder, 'bids', 'rawdata', f'{subject_id}')
+            #subject_folder = os.path.join(output_folder, 'bids', 'rawdata', f'{subject_id}')
+            subject_folder = os.path.join('bids', 'rawdata', f'{subject_id}')
             session_folder = os.path.join(subject_folder, f'ses-{session}', 'beh')
             os.makedirs(session_folder, exist_ok=True)
-            logging.debug(f"Created directories: {session_folder}")
+            # logging.debug(f"Created directories: {session_folder}")
 
             # Prepare output filename
             output_file = os.path.join(session_folder, f'{subject_id}_ses-{session}_task-{task_name.lower()}_beh.tsv')

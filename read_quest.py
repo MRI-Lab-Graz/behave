@@ -1,16 +1,28 @@
 import pandas as pd
 import json
+import re
+import os
 
 NO_DESCRIPTION = 'No description available'
 
 def load_excel_sheets(excel_file):
-    print(f"Loading Excel file: {excel_file}")
+    """
+    Load an Excel file while ensuring case-insensitive filename handling.
+    Internally, the task name is stored in uppercase.
+    """
+    # Convert filename to uppercase internally
+    task_name = os.path.splitext(os.path.basename(excel_file))[0].upper()  # Extract filename without extension and uppercase
+
+    print(f"Loading Excel file: {excel_file} as task: {task_name}")
     df_main = pd.read_excel(excel_file, sheet_name=0, skiprows=0)
     df_additional = pd.read_excel(excel_file, sheet_name=1)
+    
+    # Normalize column names to lowercase
     df_main.columns = df_main.columns.str.strip().str.lower()
     df_additional.columns = df_additional.columns.str.strip().str.lower()
-    print("Excel sheets loaded successfully.")
-    return df_main, df_additional
+    
+    print(f"Excel sheets for task {task_name} loaded successfully.")
+    return df_main, df_additional, task_name 
 
 def process_main_data(df_main, anonymize):
     print("Processing main data...")

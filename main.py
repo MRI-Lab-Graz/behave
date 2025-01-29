@@ -26,6 +26,7 @@ import os
 import glob
 import logging
 import pandas as pd
+import subprocess
 
 try:
     from import_dataset import convert_excel_to_json_updated
@@ -38,6 +39,50 @@ except ImportError as e:
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 anonymize = False  # or False, as needed
+
+
+def cleanup_unused_task_json(output_folder):
+    """
+    Delete task-*.json files in the root folder if no corresponding *_task-*.tsv files exist.
+    """
+    print("🔍 Checking for unused task JSON files...")
+
+    # Find all task-*.json files in the root output folder
+    task_json_files = glob.glob(os.path.join(output_folder, "task-*_beh.json"))
+
+    for task_json in task_json_files:
+        # Extract the task name from the JSON filename
+        task_name = os.path.basename(task_json).replace("task-", "").replace("_beh.json", "")
+
+        # Search for matching TSV files in the BIDS rawdata directory
+        matching_tsv_files = glob.glob(os.path.join(output_folder, "**", f"*task-{task_name}_beh.tsv"), recursive=True)
+
+        if not matching_tsv_files:
+            print(f"🗑️  No TSV files found for {task_name}. Deleting {task_json}...")
+            os.remove(task_json)
+        else:
+            print(f"✅ Task {task_name} is used. Keeping {task_json}.")
+
+    print("✅ Cleanup completed.")
+
+
+def validate_bids(bids_rawdata_folder):
+    """
+    Run the BIDS Validator using Deno.
+    """
+    print("🚀 Running BIDS Validator...")
+
+    # Construct the validation command
+    validator_command = ["deno", "run", "-ERN", "jsr:@bids/validator", bids_rawdata_folder, "--ignoreWarnings", "-v"]
+
+    try:
+        result = subprocess.run(validator_command, check=True, capture_output=True, text=True)
+        print("✅ BIDS validation completed successfully!")
+        print(result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("❌ BIDS validation failed!")
+        print(e.stderr)
+
 
 def main():
     # Collect all session files, excluding temporary files and variables file
@@ -78,10 +123,11 @@ def main():
 
         logging.debug(f"Questionnaire File {excel_file}")
         # Extract the task name from the file name
-        task_name = os.path.splitext(os.path.basename(excel_file))[0]
+        #task_name = os.path.splitext(os.path.basename(excel_file))[0]
+        task_name = os.path.splitext(os.path.basename(excel_file))[0].upper()
         logging.debug(f"Task name {task_name}")
 
-        output_json_file = os.path.join(output_folder, f"task-{task_name}_beh.json")
+        output_json_file = os.path.join(output_folder, f'task-{task_name.lower()}_beh.json')
         convert_excel_to_json_updated(excel_file, output_json_file, anonymize)
 
         # Process each session file for the current task
@@ -89,6 +135,12 @@ def main():
             logging.debug(f"Session File: {session_file}")
             # Call the function to process session data and create BIDS structure
             create_bids_structure_and_copy_data(session_file, task_name, excel_file, output_folder)
+
+        # 🔹 Perform cleanup of unused task JSON files
+        cleanup_unused_task_json(output_folder)
+
+# 🔹 Run BIDS validation
+        validate_bids(output_folder)
 
 if __name__ == "__main__":
     main()
