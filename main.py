@@ -1,4 +1,26 @@
 # main.py
+def print_header():
+    header = """
+▗▖  ▗▖▗▄▄▖ ▗▄▄▄▖    ▗▖    ▗▄▖ ▗▄▄▖      ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▄▄▄▄▖
+▐▛▚▞▜▌▐▌ ▐▌  █      ▐▌   ▐▌ ▐▌▐▌ ▐▌    ▐▌   ▐▌ ▐▌▐▌ ▐▌   ▗▞▘
+▐▌  ▐▌▐▛▀▚▖  █      ▐▌   ▐▛▀▜▌▐▛▀▚▖    ▐▌▝▜▌▐▛▀▚▖▐▛▀▜▌ ▗▞▘  
+▐▌  ▐▌▐▌ ▐▌▗▄█▄▖    ▐▙▄▄▖▐▌ ▐▌▐▙▄▞▘    ▝▚▄▞▘▐▌ ▐▌▐▌ ▐▌▐▙▄▄▄▖
+             MRI-Lab Graz - Survey to BIDS Converter               
+"""
+    print(header)
+
+"""
+Script Name: main.py
+Description: Converts survey data to BIDS format
+Author: Karl Koschutnig
+Date Created: 3.11.2024
+Last Modified: 29.01.2025
+Version: 1.1
+
+----------------------------------------------------------
+"""
+print_header()
+
 
 import os
 import glob
