@@ -4,6 +4,14 @@ import os
 
 def convert_excel_to_json_updated(excel_file, output_json_file, anonymize=False):
     # Load both sheets from the Excel file
+    # Load the Excel file to check the number of sheets
+    xls = pd.ExcelFile(excel_file)
+    
+    # Check if there is only one sheet
+    if len(xls.sheet_names) < 3: 
+        raise ValueError("The Excel file must contain at least three sheets.")
+    
+    # Load both sheets from the Excel file
     df_main = pd.read_excel(excel_file, sheet_name=0, skiprows=0)
 
     # Ensure the base directory for the output JSON file exists

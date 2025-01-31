@@ -20,7 +20,7 @@ def normalize_item_name(item_name):
 
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def create_bids_structure_and_copy_data(session_file, task_name, task_file, output_folder):
     """
