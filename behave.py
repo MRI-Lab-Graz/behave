@@ -1,6 +1,7 @@
 # main.py
 import os
 import glob
+import sys
 import logging
 import pandas as pd
 import subprocess
@@ -27,7 +28,7 @@ Version: 1.1
 """
 print_header()
 
-
+sys.path.append(os.path.abspath("code"))
 
 try:
     from import_dataset import convert_excel_to_json_updated
