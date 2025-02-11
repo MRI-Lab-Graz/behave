@@ -38,7 +38,7 @@ try:
 except ImportError as e:
     print(f"Error importing modules: {e}")
 
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.debug, format='%(asctime)s - %(levelname)s - %(message)s')
 
 anonymize = False  # or False, as needed
 
@@ -68,22 +68,35 @@ def cleanup_unused_task_json(output_folder):
     print("✅ Cleanup completed.")
 
 
+import subprocess
+
 def validate_bids(bids_rawdata_folder):
     """
-    Run the BIDS Validator using Deno.
+    Run the BIDS Validator using Deno and capture all output.
     """
     print("🚀 Running BIDS Validator...")
 
     # Construct the validation command
-    validator_command = ["deno", "run", "-ERN", "jsr:@bids/validator", bids_rawdata_folder, "--ignoreWarnings", "-v"]
+    validator_command = [
+        "deno", "run", "-ERN", "jsr:@bids/validator",
+        bids_rawdata_folder, "--ignoreWarnings", "-v"
+    ]
 
     try:
-        result = subprocess.run(validator_command, check=True, capture_output=True, text=True)
+        # Combine stdout and stderr
+        result = subprocess.run(
+            validator_command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # Redirect stderr to stdout
+            text=True
+        )
         print("✅ BIDS validation completed successfully!")
-        print(result.stdout)
+        print(result.stdout)  # This now includes both stdout and stderr
     except subprocess.CalledProcessError as e:
         print("❌ BIDS validation failed!")
-        print(e.stderr)
+        # When an error occurs, use e.output which contains the combined output.
+        print(e.output)
 
 
 def main():
@@ -104,7 +117,7 @@ def main():
     # Aggregate participant data from all session files
     participant_data_frames = []
     for session_file in session_files:
-        logging.debug(f"Processing session file: {session_file}")
+        print(f"🏋Working in session file: {session_file}")
         try:
             df_session = pd.read_excel(session_file)
             participant_data_frames.append(df_session)
