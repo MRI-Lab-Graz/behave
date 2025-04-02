@@ -4,6 +4,7 @@ import argparse
 import logging
 import glob
 import json
+import math
 import re
 import pandas as pd
 import subprocess
@@ -12,18 +13,19 @@ from colorama import Fore, Style, init
 anonymize = False  # or False, as needed
 
 
-# Set up argument parsing
-parser = argparse.ArgumentParser(description="Process BIDS data for a given study.")
-parser.add_argument("-s", "--study", required=True, help="Study ID (e.g., PK01)")
-parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-args = parser.parse_args()
+# # Set up argument parsing
+# parser = argparse.ArgumentParser(
+#         description="""Process data and resources folders to convert Excel files into JSON and TSV formats.
+#         This script expects specific Excel files in the resources folder:
+#         - 'demographics.xlsx' for demographic data
+#         - 'participants_variables.xlsx' for variable definitions and dataset descriptions.
+#         """
+#     )
+# parser.add_argument("-s", "--study", required=True, help="Study ID (e.g., PK01)")
+# parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+# args = parser.parse_args()
 
-# Set up logging based on the `--debug` flag
-if args.debug:
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-else:
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
+
 def print_header():
     header = """
 ▗▖  ▗▖▗▄▄▖ ▗▄▄▄▖    ▗▖    ▗▄▖ ▗▄▄▖      ▗▄▄▖▗▄▄▖  ▗▄▖ ▗▄▄▄▄▖
@@ -32,7 +34,6 @@ def print_header():
 ▐▌  ▐▌▐▌ ▐▌▗▄█▄▖    ▐▙▄▄▖▐▌ ▐▌▐▙▄▞▘    ▝▚▄▞▘▐▌ ▐▌▐▌ ▐▌▐▙▄▄▄▖
              MRI-Lab Graz - Survey to BIDS Converter              
         """
-    print(header)
     
 print_header()
 
@@ -50,25 +51,73 @@ def check_mandatory_folders():
 
 def main():
     # Parse command-line arguments
-    parser = argparse.ArgumentParser(description="Survey to BIDS Converter")
-    parser.add_argument("-s", "--study", required=True, help="Study folder name (e.g., PK01)")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        description="""Process data and resources folders to convert Excel files into JSON and TSV formats.
+        This script expects specific Excel files in the resources folder:
+        - 'demographics.xlsx' for demographic data
+        - 'participants_variables.xlsx' for variable definitions and dataset descriptions.
+        """
+    )
+    parser.add_argument(
+        '-d', '--data',
+        required=True,
+        help="Path to the data folder where input files will are saved."
+    )
+    parser.add_argument(
+        '-r', '--resources',
+        required=True,
+        help="Path to the resources folder containing input Excel files."
+    )
+    parser.add_argument(
+        '-o', '--output',
+        required=True,
+        help="Path to the BIDS-output folder."
+    )
+    parser.add_argument(
+        "-s", "--study",
+        required=True,
+        help="Study name (e.g., PK01)")
     
+    
+    parser.add_argument(
+        "--debug", 
+        action="store_true", 
+        help="Enable debug logging")
+    
+    args = parser.parse_args()
         # Check for mandatory folders
     # check_mandatory_folders()
 
     # Define the study folder
     study_folder = args.study
     logging.info(f"Study folder: {study_folder}")
-
-    # Update the data folder path to include the study folder
-    data_folder = os.path.join("./data", study_folder)
+    data_folder = args.data
     logging.info(f"Data folder: {data_folder}")
-
-    # Verify that the data folder exists
-    if not os.path.exists(data_folder):
-        logging.error(f"Data folder '{data_folder}' does not exist.")
-        sys.exit(1)
+    resources_folder = args.resources
+    logging.info(f"Resources folder: {resources_folder}")
+    output_folder = args.output
+    logging.info(f"Resources folder: {output_folder}")
+    
+    # List of folders to check
+    
+    
+        # Define paths to expected Excel files
+    
+    # Set up logging based on the `--debug` flag
+    if args.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    data_folder = os.path.join(data_folder , study_folder)
+    
+    folders_to_check = [data_folder, resources_folder]
+    
+    # Loop over folders and check if they exist
+    for folder in folders_to_check:
+        if not os.path.exists(folder):
+            logging.error(f"Folder '{folder}' does not exist.")
+            sys.exit(1)
 
     # Collect all session files, excluding temporary files and variables file
     session_files = [
@@ -81,7 +130,7 @@ def main():
         logging.error(f"No session files found in '{data_folder}'")
         sys.exit(1)
 
-    output_folder = os.path.join('./bids/rawdata', study_folder)
+    output_folder = os.path.join(output_folder , study_folder, 'rawdata')
     logging.info(f"Output folder: {output_folder}")
 
     # Ensure the output folder exists
@@ -92,12 +141,12 @@ def main():
     logging.info(f"Variables file: {variables_file}")
 
     # Call the function to create participants.tsv and participants.json
-    demographics_file = os.path.join(data_folder, "demographics.xlsx")
+    demographics_file = os.path.join(data_folder, 'demographics.xlsx')
     logging.info(f"Demographics file: {demographics_file}")
     convert_demographics_to_participants(demographics_file, variables_file, output_folder, study_folder)
 
     # Process each questionnaire
-    for excel_file in glob.glob('./resources/*.xlsx'):
+    for excel_file in glob.glob(os.path.join(resources_folder, '*.xlsx')):
         if os.path.basename(excel_file) == 'participants_dataset.xlsx':
             continue  # Skip the variables definition file
         
@@ -189,6 +238,18 @@ def validate_bids(output_folder):
         # When an error occurs, use e.output which contains the combined output.
         print(e.output)
 
+def sanitize_text(text):
+    """
+    Sanitize the text by removing or replacing special characters that could cause issues in TSV/CSV files.
+    """
+    if pd.isna(text):  # Handle NaN values
+        return ""
+    # Replace problematic characters with a space or remove them
+    sanitized_text = re.sub(r'[,\t\n\r]', ' ', str(text))  # Replace commas, tabs, newlines with spaces
+    sanitized_text = re.sub(r'\s+', ' ', sanitized_text).strip()  # Remove extra spaces
+    return sanitized_text
+
+
 def convert_excel_to_json_updated(excel_file, output_json_file, anonymize=False):
     # Load both sheets from the Excel file
     # Load the Excel file to check the number of sheets
@@ -221,13 +282,13 @@ def convert_excel_to_json_updated(excel_file, output_json_file, anonymize=False)
     for idx, row in df_main.iterrows():
         item_key = row.get('itemname', 'Unknown Item').strip() if pd.notna(row.get('itemname')) else 'Unknown Item'
     
-    # Handle anonymization of questions if required
+        # Handle anonymization of questions if required
         if anonymize:
             description = f"Question {idx }"  # Corrected index to start from 1
         else:
             description = row.get('itemdescription', 'No description available')
 
-    # Skip rows with placeholder 'Unknown Item' or missing values if necessary
+        # Skip rows with placeholder 'Unknown Item' or missing values if necessary
         if item_key.lower().startswith("itemname"):
             continue
 
@@ -236,6 +297,9 @@ def convert_excel_to_json_updated(excel_file, output_json_file, anonymize=False)
             num_levels = int(row['likert_scale']) if pd.notna(row['likert_scale']) else 0
         except (ValueError, KeyError, TypeError):
             num_levels = 0  # Default to 0 if not specified or invalid
+            
+                # Check for "open" response option
+
 
         # Create entry with the description
         entry = {
@@ -262,10 +326,13 @@ def convert_excel_to_json_updated(excel_file, output_json_file, anonymize=False)
             # Add levels to the entry only if they exist
             if levels:
                 entry["Levels"] = levels
+        
+                # Check if 'leveldescription' is in the columns of the DataFrame        
         else:
             # Check that 'leveldescription' exists and is not NaN
             if 'leveldescription' in df_main.columns and pd.notna(row['leveldescription']):
                 entry["Units"] = str(row['leveldescription']).strip()
+                
 
 
         # Add entry to the JSON data dictionary
@@ -333,6 +400,16 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
     # Normalize task items and filter out invalid entries
     task_items = [normalize_item_name(item) for item in df_task[task_item_column].tolist() if 'example' not in str(item).lower()]
     logging.debug(f"Task items after normalization: {task_items}")
+    
+    # Check for NaN in task_items
+    nan_items = [item for item in task_items if isinstance(item, float) and math.isnan(item)]
+    if nan_items:
+        logging.error(Fore.RED + f"Found NaN values in task_items: {nan_items}" + Style.RESET_ALL)
+
+    # Check for NaN in task_columns
+    nan_columns = [col for col in task_columns if isinstance(col, float) and math.isnan(col)]
+    if nan_columns:
+        logging.error(Fore.RED + f"Found NaN values in task_columns: {nan_columns}" + Style.RESET_ALL)
 
     # Check for missing items globally (for debugging purposes)
     missing_items_global = [item for item in task_items if item not in task_columns]
@@ -378,6 +455,10 @@ def create_bids_structure_and_copy_data(session_file, task_name, task_file, outp
 
             # Apply conversion to numerical columns only
             row_df = row_df.apply(lambda col: col.map(convert_floats) if col.dtype.kind in 'fi' else col)
+            # Remove commas from string columns only
+            # Clean string columns: remove commas and new lines
+            row_df = row_df.apply(lambda col: col.map(clean_text) if col.dtype == 'object' else col)
+
             row_df.drop(columns=['subject_id', 'session'], inplace=True)
 
             # Save as TSV
@@ -455,7 +536,7 @@ def convert_demographics_to_participants(demographics_file, variables_file, outp
 
         if col in dtype_map:
             if dtype_map[col] == 'integer':
-                df_participants[col] = pd.to_numeric(df_participants[col], errors='coerce').astype('Int64')
+                df_participants[col] = pd.to_numeric(df_participants[col], errors='coerce').astype('Int64', errors='ignore')
             elif dtype_map[col] == 'float':
                 df_participants[col] = pd.to_numeric(df_participants[col], errors='coerce')
             elif dtype_map[col] == 'cat_num':
@@ -466,10 +547,27 @@ def convert_demographics_to_participants(demographics_file, variables_file, outp
                     df_participants[col] = df_participants[col].astype(str)
             elif dtype_map[col] == 'cat_string':
                 df_participants[col] = df_participants[col].astype(str)
+    for col in df_participants.columns:
+        if col in dtype_map:
+            if dtype_map[col] in ['integer', 'cat_num']:  # Ensure categorical numbers are also treated as integers
+                df_participants[col] = pd.to_numeric(df_participants[col], errors='coerce').astype(pd.Int64Dtype())
+
 
     # 1️⃣0️⃣ Write participants.tsv
     participants_tsv_path = os.path.join(output_folder, "participants.tsv")
+    df_participants.replace(-999, pd.NA, inplace=True)  # Ensure missing values are set to NA
+
+    # Convert all 'Int64' columns to standard Python integers before writing
+    for col in df_participants.columns:
+        if col in dtype_map:
+            if dtype_map[col] == 'integer':
+                df_participants[col] = pd.to_numeric(df_participants[col], errors='coerce').astype(pd.Int64Dtype())
+ # Replace missing values and convert to int
+
     df_participants.to_csv(participants_tsv_path, sep='\t', index=False, na_rep='n/a')
+
+
+    # orig df_participants.to_csv(participants_tsv_path, sep='\t', index=False, na_rep='n/a')
     print(f"✅ Saved participants.tsv at {participants_tsv_path}")
 
     # 1️⃣1️⃣ Create (optional) participants.json
@@ -486,8 +584,8 @@ def convert_demographics_to_participants(demographics_file, variables_file, outp
         levels_str = row.get('Levels', '')
 
         variable_entry = {"Description": description}
-        if data_type:
-            variable_entry["DataType"] = data_type.capitalize()
+        # if data_type:
+        #    variable_entry["DataType"] = data_type.capitalize()
 
         # If 'cat_num' or 'cat_string' have levels, parse them
         if data_type in ['cat_num', 'cat_string'] and pd.notna(levels_str):
@@ -576,6 +674,11 @@ def normalize_item_name(item_name):
     if match:
         return f"{match.group(1).upper()}{match.group(2)}"  # Convert prefix to uppercase
     return item_name  # Return unchanged if it doesn't match
+
+def clean_text(value):
+    if isinstance(value, str):  # Ensure we only modify strings
+        return re.sub(r'[\n\r,]', ' ', value).strip()  # Replace new lines and commas with space
+    return value  # Keep other values unchanged
 
 if __name__ == "__main__":
     print_header()
