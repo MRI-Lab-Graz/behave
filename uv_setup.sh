@@ -9,10 +9,10 @@ if ! command -v uv &> /dev/null; then
 fi
 
 echo "🚀 Creating virtual environment using uv..."
-uv venv .venv
+uv venv .behave
 
 # Activate the virtual environment
-source .venv/bin/activate
+source .behave/bin/activate
 
 # Install packages
 echo "📦 Installing dependencies from requirements.txt..."
@@ -25,4 +25,4 @@ if ! command -v deno &> /dev/null; then
 fi
 
 echo "✅ Setup complete!"
-echo "🔧 Activate your environment later with: source .venv/bin/activate"
+echo "🔧 Activate your environment later with: source .behave/bin/activate"
