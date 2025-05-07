@@ -1,6 +1,13 @@
 # BEHAVE
 
 Converting (any) behavioural data into BIDS
+##
+- Check if UV and deno are installed on your local machine
+- CLone this repository
+- Run uv_setup.bat/sh. This will create a virtual environment (.behave) and instsall all necessary pyhton packages.
+- When using behave, activate the envirionmant (source .behave/bin/activate)
+- When finished deactivat it agein (just type: deactivate)
+
 
 ## behave
 
@@ -41,12 +48,7 @@ The following Python packages need to be installed on the target PC. These packa
 * re: Standard library module, no need to install.
 * colorama (optional): If you use Fore.RED or similar, you need this for colored terminal output.
 
-Command to install the required packages:
 
-````bash
-pip install pandas openpyxl numpy colorama
-````
-
-Additionally, ensure that Python (3.6 or higher) is installed on the target PC.
+Additionally, ensure that Python (3.8 or higher) is installed on the target PC.
 
 ![Drag Racing](LOGO.png)
