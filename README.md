@@ -2,12 +2,61 @@
 
 Converting (any) behavioural data into BIDS
 ##
-- Check if UV and deno are installed on your local machine
-- CLone this repository
+- Check if UV and deno are installed on your local machine (see windows installation below)
+- Clone this repository
 - Run uv_setup.bat/sh. This will create a virtual environment (.behave) and instsall all necessary pyhton packages.
 - When using behave, activate the envirionmant (source .behave/bin/activate)
 - When finished deactivat it agein (just type: deactivate)
+## ✅ Manual `uv` Installation — **Windows**
 
+### Step 1: Download `uv`
+
+1. Go to the [uv GitHub releases page](https://github.com/astral-sh/uv/releases).
+2. Find the latest release.
+3. Under **Assets**, download the file:
+   - `uv-x86_64-pc-windows-msvc.zip`
+
+### Step 2: Extract the Archive
+
+1. Right-click the downloaded `.zip` file.
+
+2. Select **Extract All**.
+
+3. Extract it to a folder like:
+
+   ```
+   C:\Users\YourUsername\Programs\uv\
+   ```
+
+You should now have a file called `uv.exe` in that folder.
+
+### Step 3: Add to System `PATH`
+
+1. Press **Win + S**, search for **"Environment Variables"**, and open:
+
+   > “Edit the system environment variables”
+
+2. In the System Properties window, click **Environment Variables…**
+
+3. Under **User variables**, find `Path`, select it, and click **Edit**.
+
+4. Click **New**, then paste:
+
+   ```
+   C:\Users\YourUsername\Programs\uv\
+   ```
+
+5. Click **OK** through all dialogs.
+
+### Step 4: Test Installation
+
+Open a new PowerShell or CMD window, and run:
+
+```
+uv --version
+```
+
+You should see the version number, confirming it's installed correctly.
 
 ## behave
 
