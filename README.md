@@ -1,103 +1,143 @@
-# BEHAVE
+# 🧠 BEHAVE
 
-Converting (any) behavioural data into BIDS
-##
-- Check if UV and deno are installed on your local machine (see windows installation below)
-- Clone this repository
-- Run uv_setup.bat/sh. This will create a virtual environment (.behave) and instsall all necessary pyhton packages.
-- When using behave, activate the envirionmant (source .behave/bin/activate)
-- When finished deactivat it agein (just type: deactivate)
-## ✅ Manual `uv` Installation — **Windows**
+**Convert (any) behavioral data into BIDS format.**
 
-### Step 1: Download `uv`
+------
 
-1. Go to the [uv GitHub releases page](https://github.com/astral-sh/uv/releases).
-2. Find the latest release.
-3. Under **Assets**, download the file:
-   - `uv-x86_64-pc-windows-msvc.zip`
+## 🚀 Quick Start
 
-### Step 2: Extract the Archive
+### ➤ Main Command
 
-1. Right-click the downloaded `.zip` file.
+```
+python behave.py [-h] -d DATA -r RESOURCES -o OUTPUT -s STUDY [--debug]
+```
 
-2. Select **Extract All**.
+Convert behavioral Excel files into BIDS-compatible `JSON` and `TSV` files.
 
-3. Extract it to a folder like:
+**Arguments:**
 
-   ```
-   C:\Users\YourUsername\Programs\uv\
-   ```
+- `-d`, `--data`: Path to the folder containing raw behavioral data.
+- `-r`, `--resources`: Path to the resources folder (must contain Excel files like `demographics.xlsx` and `participants_variables.xlsx`).
+- `-o`, `--output`: Output folder where BIDS files will be saved.
+- `-s`, `--study`: Study name (e.g., `template`).
+- `--debug`: Optional. Enables detailed debug logging.
+- `-h`, `--help`: Show help message and exit.
 
-You should now have a file called `uv.exe` in that folder.
+------
 
-### Step 3: Add to System `PATH`
+### ➤ Additional Tool: `behave_together`
 
-1. Press **Win + S**, search for **"Environment Variables"**, and open:
+```
+python behave_together.py [-h] -b BIDS_DIR -t TASKS [TASKS ...] [--all]
+```
 
-   > “Edit the system environment variables”
+Gather behavioral BIDS data across multiple tasks into a single wide CSV.
 
-2. In the System Properties window, click **Environment Variables…**
+**Arguments:**
 
-3. Under **User variables**, find `Path`, select it, and click **Edit**.
+- `-b`, `--bids_dir`: Top-level BIDS directory.
+- `-t`, `--tasks`: List of task names to include (e.g., `-t ADS GNG`).
+- `--all`: Optional. Automatically gather all tasks found via `task-*_beh.json`.
+- `-h`, `--help`: Show help message and exit.
 
-4. Click **New**, then paste:
+------
 
-   ```
-   C:\Users\YourUsername\Programs\uv\
-   ```
+## 📦 Installation
 
-5. Click **OK** through all dialogs.
+### Step 1: Clone the Repository
 
-### Step 4: Test Installation
+```
+git clone https://github.com/your-username/behave.git
+cd behave
+```
 
-Open a new PowerShell or CMD window, and run:
+### Step 2: Set Up the Environment
+
+Run the setup script to create a virtual environment and install required packages:
+
+- **Windows:**
+
+  ```
+  uv_setup.bat
+  ```
+
+- **macOS/Linux:**
+
+  ```
+  ./uv_setup.sh
+  ```
+
+### Step 3: Activate the Environment
+
+```
+source .behave/bin/activate
+```
+
+To deactivate later:
+
+```
+deactivate
+```
+
+------
+
+## 🧰 Requirements
+
+Ensure Python 3.8+ is installed.
+
+The following Python packages will be installed automatically via the setup script:
+
+- `pandas` – Data manipulation
+- `openpyxl` – Excel reading
+- `numpy` – Numerical operations
+- `colorama` *(optional)* – Colored terminal output
+
+**Standard libraries used** (no installation needed):
+
+- `os`, `json`, `logging`, `re`
+
+------
+
+## ✅ Manual `uv` Installation (Windows Only)
+
+If `uv` is not yet installed, follow these steps:
+
+### 1. Download `uv`
+
+Go to the [uv releases page](https://github.com/astral-sh/uv/releases) and download:
+
+```
+uv-x86_64-pc-windows-msvc.zip
+```
+
+### 2. Extract the ZIP
+
+Extract it to:
+
+```
+C:\Users\YourUsername\Programs\uv\
+```
+
+You should now have `uv.exe` in that folder.
+
+### 3. Add to PATH
+
+- Open **Environment Variables** via system settings.
+
+- Edit your `Path` under **User variables**.
+
+- Add:
+
+  ```
+  C:\Users\YourUsername\Programs\uv\
+  ```
+
+### 4. Verify Installation
+
+Open a new terminal and run:
 
 ```
 uv --version
 ```
 
-You should see the version number, confirming it's installed correctly.
-
-## behave
-
-````bash
-python behave.py [-h] -d DATA -r RESOURCES -o OUTPUT -s STUDY [--debug]
-````
-
-Process data and resources folders to convert Excel files into JSON and TSV formats. This script expects specific Excel files in the resources
-folder: - 'demographics.xlsx' for demographic data - 'participants_variables.xlsx' for variable definitions and dataset descriptions.
-
-Options: 
-* -h, --help: show this help message and exit
-* -d DATA, --data DATA : Path to the data folder where input files will are saved.
-* -r RESOURCES, --resources RESOURCES: Path to the resources folder containing input Excel files.
-* -o OUTPUT, --output OUTPUT: Path to the BIDS-output folder.
-* -s STUDY, --study STUDY: Study name (e.g., template)
-* --debug: Enable debug logging
-
-## behave_together
-Gather BIDS behavioral data across multiple tasks into one wide CSV.
-
-options:
-* -h, --help: show this help message and exit
-* -b BIDS_DIR, --bids_dir BIDS_DIR: Path to the top-level BIDS directory.
-* -t TASKS [TASKS ...], --tasks TASKS [TASKS ...]: Task name(s) to gather (e.g., '-t ADS GNG').
-* --all: Gather data for ALL tasks found via task-*_beh.json in the BIDS root.
-
-## Requirements
-
-The following Python packages need to be installed on the target PC. These packages are used in the script and are not part of Python's standard library. You can install them using pip:
-
-* pandas: For data manipulation and handling dataframes.
-* openpyxl: For reading Excel files (.xlsx).
-* numpy: Often used by pandas for numerical operations.
-* os: Standard library module, no need to install.
-* logging: Standard library module, no need to install.
-* json: Standard library module, no need to install.
-* re: Standard library module, no need to install.
-* colorama (optional): If you use Fore.RED or similar, you need this for colored terminal output.
-
-
-Additionally, ensure that Python (3.8 or higher) is installed on the target PC.
-
-![Drag Racing](LOGO.png)
+You should see the version number printed.
