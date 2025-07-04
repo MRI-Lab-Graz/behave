@@ -1,6 +1,22 @@
 # 🧠 BEHAVE
 
-**Convert (any) behavioral data into BIDS format.**
+## 🧠 What is **BEHAVE**?
+
+**BEHAVE** is a command-line tool that **converts behavioral data from Excel files into BIDS-compliant JSON and TSV files**, making them suitable for neuroimaging data repositories. It takes subject-level behavioral session data and task/questionnaire metadata, and organizes them into the standardized BIDS structure.
+
+To run BEHAVE successfully, the user must prepare:
+
+- A `/data/STUDY_NAME/` folder containing:
+  - **Session Excel files** (one per subject and session)
+  - A `demographics.xlsx` file with subject-level info
+  - A `participants_dataset.xlsx` file with variable definitions and dataset metadata
+- A `/resources/` folder containing:
+  - **Task definitions** — one `.xlsx` file per behavioral task, each with 3 sheets:
+    1. Items & scoring
+    2. Task metadata
+    3. Non-likert variable definitions
+
+BEHAVE will validate your dataset using the BIDS validator (via `deno`) and output a complete BIDS-formatted `/rawdata/` folder.
 
 ------
 
