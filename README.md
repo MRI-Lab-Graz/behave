@@ -7,7 +7,7 @@
 To run BEHAVE successfully, the user must prepare:
 
 - A `/data/STUDY_NAME/` folder containing:
-  - **Session Excel files** (one per subject and session)
+  - **Session Excel files** (one per session)
   - A `demographics.xlsx` file with subject-level info
   - A `participants_dataset.xlsx` file with variable definitions and dataset metadata
 - A `/resources/` folder containing:
@@ -41,7 +41,7 @@ Convert behavioral Excel files into BIDS-compatible `JSON` and `TSV` files.
 
 ------
 
-## 📁 File Format Details (Demo-Based)
+## 📁 File Format Details (Reference to files on this github repo)
 
 ### 🗂 Folder Structure
 
@@ -64,14 +64,12 @@ These filenames are required by the BEHAVE script to function correctly.
 behave/
 ├── data/
 │   └── template/
-│       ├── session1.xlsx
-│       ├── demographics.xlsx
-│       └── participants_dataset.xlsx
+│       ├── session1.xlsx (1 sheets)
+│       ├── demographics.xlsx (1 sheets)
+│       └── participants_dataset.xlsx (1 sheets)
 ├── resources/
 │   └── testquest.xlsx   ← (task definition with 3 sheets)
 ```
-
-
 
 To successfully run `BEHAVE`, you need the following Excel files organized with specific column structures. Here's what they should look like:
 
@@ -85,15 +83,15 @@ The `demographics.xlsx` and `participants_dataset.xlsx` files work together to d
 
 - **`participants_dataset.xlsx`** provides the metadata for each column in `demographics.xlsx`, including variable names, descriptions, and data type (similar to the participants.json)
 
-  🧍‍♂️ `demographics.xlsx`
-
 In short, `demographics.xlsx` holds the data, while `participants_dataset.xlsx` describes and defines it.
+### 🧍‍♂️ `demographics.xlsx`
 
 **Location:** `data/STUDY_NAME/demographics.xlsx`
 
 **Purpose:** Provides subject-level information such as age, sex, and group.
 
-**Required Columns:**
+**Example Columns:**
+First column is required, rest is up to you!
 
 | Column   | Description                        |
 | -------- | ---------------------------------- |
@@ -105,8 +103,6 @@ In short, `demographics.xlsx` holds the data, while `participants_dataset.xlsx` 
 | `weight` | Weight in kilograms                |
 | `group`  | Experimental group assignment      |
 
-
-
 **Example:**
 
 ```
@@ -114,7 +110,6 @@ id       ses   age   sex   size   weight   group
 sub-001   1     34     2    190     100       2
 sub-002   1     20     2    184      80       3
 ```
-
 ------
 
 ### 🧾 `participants_dataset.xlsx`
@@ -132,16 +127,14 @@ sub-002   1     20     2    184      80       3
 | `DataType`     | Data type (`string`, `integer`, `cat_num`)        |
 | `Levels`       | Value mappings for categorical variables (if any) |
 
-
-
 **Example:**
-
 ```
 VariableName   Description           DataType   Levels
 id             Participant ID        string
 age            Age in years          integer
 sex            Biological sex        cat_num    1: Male; 2: Female
 ```
+Note: "cat_num" expects to specify Levels as key:value.
 
 #### 📄 Sheet 2 — Dataset Metadata
 
@@ -149,8 +142,6 @@ sex            Biological sex        cat_num    1: Male; 2: Female
 | ----------------- | ------------- |
 | `Name`            | `BIDSVersion` |
 | `My Bids dataset` | `1.7.0`       |
-
-
 
 Used to auto-generate `dataset_description.json`.
 
@@ -169,7 +160,6 @@ Used to auto-generate `dataset_description.json`.
 | `id`             | Subject ID (`sub-001`, etc.)                     |
 | `ses`            | Session number                                   |
 | `testquest01...` | One column per task item (e.g., Likert response) |
-
 
 
 **Example:**
@@ -198,8 +188,6 @@ Each behavioral task should be described using an Excel file inside the `resourc
 | `levels`           | Response code (e.g., `0`, `1`, `2`, ...)                     |
 | `leveldescription` | Text description for each level (must pair with a `levels` value) |
 
-
-
 Additional pairs of `levels` and `leveldescription` can be added for multi-scale items.
 
 ------
@@ -214,7 +202,6 @@ Additional pairs of `levels` and `leveldescription` can be added for multi-scale
 | testquest01 | I feel confident in my ability to complete tasks at work.    | 4            | 0      | Rarely or none of the time                | ...  |
 | testquest02 | I enjoy participating in group discussions and activities.   | 4            | 1      | Some or a little of the time              | ...  |
 | testquest03 | I often feel stressed when managing multiple responsibilities. | 4            | 2      | Occasionally or a moderate amount of time | ...  |
-
 
 
 ℹ️ You may include additional `levels`/`leveldescription` columns if needed (e.g., for 5-point or alternative scales).
@@ -242,7 +229,6 @@ This sheet should contain **key-value pairs** that correspond to standard BIDS f
 | `Info`        | The value to include in the JSON (this is what BEHAVE will extract and write into the `.json` file) |
 
 
-
 ------
 
 ### ✅ Example
@@ -258,10 +244,7 @@ This sheet should contain **key-value pairs** that correspond to standard BIDS f
 | `InstitutionAddress`          | Address of the institution                      | string    | `Kopernikusgasse`          |
 | `InstitutionalDepartmentName` | Department name at the institution              | string    | `MRI Lab Graz`             |
 
-
-
 ------
-
 ### 📌 Tips
 
 - Only **one row per key** is required.
@@ -286,16 +269,16 @@ Gather behavioral BIDS data across multiple tasks into a single wide CSV.
 
 ------
 
-## 📦 Installation
+# 📦 Installation
 
-### Step 1: Clone the Repository
+## Step 1: Clone the Repository
 
 ```
 git clone https://github.com/your-username/behave.git
 cd behave
 ```
 
-### Step 2: Set Up the Environment
+## Step 2: Set Up the Environment
 
 Run the setup script to create a virtual environment and install required packages:
 
@@ -311,7 +294,7 @@ Run the setup script to create a virtual environment and install required packag
   ./uv_setup.sh
   ```
 
-### Step 3: Activate the Environment
+## Step 3: Activate the Environment
 
 ```
 source .behave/bin/activate
