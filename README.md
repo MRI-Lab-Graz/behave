@@ -19,7 +19,45 @@ A modular command-line tool that converts behavioral survey data from Excel file
 - **📦 Single-File Option**: Combined version for easy deployment
 - **🚀 Fast Setup**: Quick installation with uv package manager
 
-## 🚀 Installation
+## 🎯 Super Easy Setup (For Students)
+
+**Don't worry about virtual environments!** We've made it super simple:
+
+### Option 1: Ultra-Easy Launcher (Recommended for Students)
+
+Just download and run - everything is handled automatically:
+
+```bash
+# Linux/macOS
+./behave_easy.sh -d data -r resources -o output -s YourStudy
+
+# Windows
+behave_easy.bat -d data -r resources -o output -s YourStudy
+```
+
+The easy launcher will:
+
+- ✅ **Automatically detect** if you need a virtual environment
+- ✅ **Automatically create** one if missing
+- ✅ **Automatically install** all required packages
+- ✅ **Automatically activate** the environment
+- ✅ **Run the conversion** with your data
+
+**No technical knowledge required!** 🎉
+
+### Option 2: Smart Auto-Setup
+
+The main script now detects and handles virtual environments automatically:
+
+```bash
+# Just run it - the script handles everything!
+python behave.py -d data -r resources -o output -s YourStudy
+```
+
+If packages are missing, the script will ask: **"Would you like me to install the missing packages? (y/n)"**
+Just type `y` and press Enter!
+
+## 🚀 Traditional Installation (For Advanced Users)
 
 ### Option 1: Quick Setup with uv (Recommended)
 
