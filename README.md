@@ -65,7 +65,7 @@ The fastest way to get started is using our setup script with [uv](https://githu
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/behave.git
+git clone https://github.com/MRI-Lab-Graz/behave.git
 cd behave
 
 # Run the setup script (creates virtual environment and installs dependencies)
@@ -82,7 +82,7 @@ source .behave/bin/activate  # On Linux/macOS
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/behave.git
+git clone https://github.com/MRI-Lab-Graz/behave.git
 cd behave
 
 # Create virtual environment
@@ -101,7 +101,7 @@ For simple deployment, you can use the combined version without installation:
 
 ```bash
 # Download just the combined file
-wget https://raw.githubusercontent.com/your-username/behave/main/behave_combined.py
+wget https://raw.githubusercontent.com/MRI-Lab-Graz/behave/main/behave_combined.py
 
 # Install dependencies
 pip install pandas openpyxl
